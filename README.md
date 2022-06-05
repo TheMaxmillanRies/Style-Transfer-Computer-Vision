@@ -60,23 +60,30 @@ Finally, the Image Decoder (blue) is used to project the stylized image back int
 
 To train this large network to learn how to parameterize the Variational Autoencoder, a pretrained VGG-16 network is used, where the content, style, and stylized image are passed through the network and input into a customized loss function. This loss function makes use of a Gram matrix to create a modified MSE loss.
 
-Below are some images created from both single style and multiple style transfer.
-
-**INSERT IMAGE EXAMPLES**
 
 ## Our Contribution
+
+### Reproducing the paper
+The first part of our porject was to reproduce the ST-VAE paper. Fortunately, the main code base of the paper was publicly available on GitHub. However, the code was outdated and had some missing parts. We, first, made the code work and behave as it is supposed to which helped us to understand clearly the code base to be able to tweak it and change it for our second contribution as explained in the next subsection. This part of the project didn't take much time from the team but we got some estheticly nice results. 
+
+Below are some images created from both single style and multiple style transfer.
+
+![model](https://user-images.githubusercontent.com/45178285/172070465-e17a0076-5935-47d5-8716-12d465eaf428.png)
+
+### Expand on ST-VAE by using ResNet-50 instead of VGG-19
 The main motivation behind our contribution was to try create a ResNet Autoencoder and see if the residual connections affect the quality of the image, compared to the usage of a VGG network. We chose to replace the Image Autoencoder from a VGG-19 network to a ResNet-50 network (without the fully connected layers). 
 
 While the initial process appeared to be straightforward, with the definition of the ResNet-50 architecture being wisdespread on Github, we quickly found the assimilation process to be difficult.
 
 The main setback we experienced consisted of connecting the latent space manipulations performed by both the vLT and the Variational Module with the new latent space dimensions provided by the ResNet encoder.
 
-To do this, we had to... **INSERT about connecting shit and modifying loss function to make it work and add maybe about bicubic :^)**
+To do this, we had to, first, implement an ResNet encoder that unsuprinsignly output a different dimension than the VGG-19 encoder. We, then, had to to change the loss function slightly to be able to work with the new dimensions of the ResNet encoder. We tried to limit the changes to the loss function to be able to compare the results of the paper to the new variantion we have built. In a similar fashion, we had to change the dimensions of the output of the loss function to be compatible with the input of the ResNet-50 decoder. **More is needed here**
+
 
 ## Comparison Image Quality
 
 ## Limitations
-A very large limitation we experienced was time. Due to the limited time we had to work on this project, we could not successfully train our ResNet Autoencoder on the COCO dataset, forcing us to use an arbitrary set of pretrained weights from the internet. **More BS on not being able to fully train**
+A very large limitation we experienced was time. Due to the limited time we had to work on this project, we could not successfully train our ResNet Autoencoder on the COCO dataset, forcing us to use an arbitrary set of pretrained weights from the internet. **More on not being able to fully train**
 
 
 ## Conclusion
