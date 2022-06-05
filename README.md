@@ -50,7 +50,7 @@ The main purpose of the Image Autoencoder is to ensure that each image has a uni
 #### VAE-based Linear Transformation (VLT)
 The VLT system is responsible for the latent space-based style manipulation. In short, the VLT learns the covariance matrices of the input images via a linear transformation module. The style images are then passed on to the Variational Module, before multiplying its output with the content features.
 
-**INCLUDE IMAGE OF PROCESS**
+![model](https://user-images.githubusercontent.com/45178285/172070465-e17a0076-5935-47d5-8716-12d465eaf428.png)
 
 #### Main Pipeline
 
@@ -68,7 +68,7 @@ The first part of our porject was to reproduce the ST-VAE paper. Fortunately, th
 
 Below are some images created from both single style and multiple style transfer.
 
-![model](https://user-images.githubusercontent.com/45178285/172070465-e17a0076-5935-47d5-8716-12d465eaf428.png)
+**Images here**
 
 ### Expand on ST-VAE by using ResNet-50 instead of VGG-19
 The main motivation behind our contribution was to try create a ResNet Autoencoder and see if the residual connections affect the quality of the image, compared to the usage of a VGG network. We chose to replace the Image Autoencoder from a VGG-19 network to a ResNet-50 network (without the fully connected layers). 
