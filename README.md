@@ -1,49 +1,16 @@
 # Style Transfer via Variational Autoencoder
 
 ## Introduction
-Style transfer is an algorithmic process that manipulates digital images or videos, in order to adopt the artisitic style of another image. Style transfer algorithms are characterized by the use of deep neural netowrks for the sake of image transformation and abstract feature extraction. These style transfer algorithms are commonly used to create digital artworks, for example by transferring the visual appearance of famous paintings to realistic photographs. In this article, we will reproduce the algorithm described below, and expand on its work by attempting to substituting the specified neural network architecture.
+Style transfer is an algorithmic process that manipulates digital images or videos, in order to adopt the artisitic style of another image. Style transfer algorithms are characterized by the use of deep neural netowrks for the sake of image transformation and abstract feature extraction. These style transfer algorithms are commonly used to create digital artworks, for example by transferring the visual appearance of famous paintings to realistic photographs.  In this article, we will reproduce the algorithm described below, and expand on its work by attempting to substituting the specified neural network architecture. Once the substituion is done, we compare our variation of the network with the original one and similar methods fine tuned specifically on stain glass art. A detailed comparison is presented at the end of the blog. 
 
-![](readme/fig2.png)
-> [**Multiple Style Transfer via Variational AutoEncoder**](https://arxiv.org/abs/2110.07375),            
-> Zhi-Song Liu, Vicky Kalogeiton and Marie-Paule Cani,        
-> *arXiv technical report ([arXiv 2110.07375](https://arxiv.org/abs/2110.07375))*  
+## First contribution - Reproduce the paper:
+in this part, we explain briefly the main parts of the paper then show the results we managed to get by reproducing the paper. 
 
+### Main Process of the paper:
 
-    @article{DBLP:journals/corr/abs-2110-07375,
-        author    = {Zhi{-}Song Liu and
-               Vicky Kalogeiton and
-               Marie{-}Paule Cani},
-         title     = {Multiple Style Transfer via Variational AutoEncoder},
-         journal   = {CoRR},
-        volume    = {abs/2110.07375},
-        year      = {2021},
-        url       = {https://arxiv.org/abs/2110.07375},
-        eprinttype = {arXiv},
-        eprint    = {2110.07375},
-        timestamp = {Fri, 22 Oct 2021 13:33:09 +0200},
-        biburl    = {https://dblp.org/rec/journals/corr/abs-2110-07375.bib},
-        bibsource = {dblp computer science bibliography, https://dblp.org}}
+The style transfer work by Zhi-Song Liu et al., known as Style Transfer via Variational AutoEncoder (ST-VAE), builds on the concept that the style images can be projected into a linear latent space, allowing them to be merged via simple interpolation. From a general point of view, it consists of an Image encoder that learns a represenation of the input image in latent space. Then a middle part of the network does some processing operations of the latent representation of the image, then learns a variation encoder that enables the network to sample uniformly from the latent representation of the image. Next, the middle part of the network applies some post processing steps to finally get to the Image decoder where the output is the fused image with style transfered from one image to another. A detailed overview of the architecture will follow in the sections below. 
 
-
-## Abstract
-
-Modern works on style transfer focus on transferring style from a single image. Recently, some approaches study multiple style transfer; these, however, are either too slow or fail to mix multiple styles. We propose ST-VAE, a Variational AutoEncoder for latent space-based style transfer. It performs multiple style transfer by projecting nonlinear styles to a linear latent space, enabling to merge styles via linear interpolation before transferring the new style to the content image. To evaluate ST-VAE, we experiment on COCO for single and multiple style transfer. We also present a case study revealing that ST-VAE outperforms other methods while being faster, flexible, and setting a new path for multiple style transfer.
-
-
-
-## Features at a glance
-
-- **One-sentence method summary:** Our model takes a content image, a style image, and combines then using multiple autoencoders to create a styled content image.
-
-- The model can directly be applied to any kind of content and style image, as it is not reliant on training data, but clever usage of autoencoders.
-
-- Easily extendable to video stylizing, by classifying frame-by-frame. Could further be extended to an LSTM structure to allow smooth transition between frames.
-
-## Main Process
-
-The style transfer work by Zhi-Song Liu et al., known as Style Transfer via Variational AutoEncoder (ST-VAE), builds on the concept that the style images can be projected into a linear latent space, allowing them to be merged via simple interpolation.
-
-#### Image Autoencoder
+#### Image Autoencoder:
 The image autoencoder is the fundamental building block upon which this network is designed. Baseing itself on prior works, Zhi-Song Liu et al. used a VGG-19 network without the fully connected layers as an encoder to project the content and style images into a latent space. With a matching decoder, the network was trained on the COCO dataset to learn how to project any image into a latent space and recreate it thereafter. 
 The main purpose of the Image Autoencoder is to ensure that each image has a unique and compact set of features.
 
@@ -52,7 +19,7 @@ The VLT system is responsible for the latent space-based style manipulation. In 
 
 ![model](https://user-images.githubusercontent.com/45178285/172070465-e17a0076-5935-47d5-8716-12d465eaf428.png)
 
-#### Main Pipeline
+#### Main Pipeline:
 
 The image above demonstrates the pipeline of the style transfer. Using the Image Encoder (blue), the content and style images are projected into a latent space. In order to achieve this, the IAE is pretrained using the COCO dataset, and frozen for the style transfer process.
 Using the estimated covariance matrices calculated at the beginning of the VLT box (yellow), the styles are projected onto a Gaussian space (purple), before being fused into the content image features.
@@ -61,29 +28,221 @@ Finally, the Image Decoder (blue) is used to project the stylized image back int
 To train this large network to learn how to parameterize the Variational Autoencoder, a pretrained VGG-16 network is used, where the content, style, and stylized image are passed through the network and input into a customized loss function. This loss function makes use of a Gram matrix to create a modified MSE loss.
 
 
-## Our Contribution
+#### Steps to reproduce the paper:
 
-### Reproducing the paper
 The first part of our porject was to reproduce the ST-VAE paper. Fortunately, the main code base of the paper was publicly available on GitHub. However, the code was outdated and had some missing parts. We, first, made the code work and behave as it is supposed to which helped us to understand clearly the code base to be able to tweak it and change it for our second contribution as explained in the next subsection. This part of the project didn't take much time from the team but we got some estheticly nice results. 
 
+The main issues that we have faced are the outdated dependecies in their code base, the lack of relation between the paper and the code base. For example, in the paper, there is only one mention of VGG-19 (that we frankly missed when reading the paper). Fortunately, by re-reading the paper several time and mapping its steps to the code base's steps, we managed to make it work.
+
+#### Results:
 Below are some images created from both single style and multiple style transfer.
 
 **Images here**
 
-### Expand on ST-VAE by using ResNet-50 instead of VGG-19
-The main motivation behind our contribution was to try create a ResNet Autoencoder and see if the residual connections affect the quality of the image, compared to the usage of a VGG network. We chose to replace the Image Autoencoder from a VGG-19 network to a ResNet-50 network (without the fully connected layers). 
 
-While the initial process appeared to be straightforward, with the definition of the ResNet-50 architecture being wisdespread on Github, we quickly found the assimilation process to be difficult.
+## Second contribution - Expand on ST-VAE by using ResNet-50 instead of VGG-19:
+In this section of the blog, we present our second contribution. It consisted of replacing the VGG-19 autoencoder in the main architecture of ST-VAE with a custom made ResNet-50 autoencoder. 
 
-The main setback we experienced consisted of connecting the latent space manipulations performed by both the vLT and the Variational Module with the new latent space dimensions provided by the ResNet encoder.
+### Motivation for this contribution:
+Since the first contribution didn't take us a lot of time (it was done in the first 2 weeks of the course), we wanted to try to expand on the work of ST-VAE. Figuring out if another architecture for the autoencoder will drastically change ST-VAE's ability to transfer style from one image to another. More specifically,  we wanted to see if residual connections of a ResNet-50 autoencoder affect the quality of the image, compared to the usage of a VGG network. We chose to replace the Image Autoencoder from a VGG-19 network to a ResNet-50 network (without the fully connected layers). 
 
-To do this, we had to, first, implement an ResNet encoder that unsuprinsignly output a different dimension than the VGG-19 encoder. We, then, had to to change the loss function slightly to be able to work with the new dimensions of the ResNet encoder. We tried to limit the changes to the loss function to be able to compare the results of the paper to the new variantion we have built. In a similar fashion, we had to change the dimensions of the output of the loss function to be compatible with the input of the ResNet-50 decoder. **More is needed here**
+We chose ResNet-50 for two reasons, it is relatively a small architecture and there are several pre-trained ResNet-50 architectures available online that we can use for quick tests. We first wanted to train this variation of the architecture ourselves but unfortunately, we couldn't do that. More information about this will be discussed later in the blog. 
+
+### Building a custom ResNet-50 AutoEncoder:
+To fulfill this step of our process, we coded our own version of ResNet-50 AutoEncoder. Fortunately, the main building blocks for ResNet-50 are available on GitHub (especially for the encoder part of the Autoencoder). We, quickly, built the encoder then we dived in to build the reverse fo the encoder to create the decoder part. This has proved to be a little bit difficult but, fortunately, we were able to finish it succefully. 
 
 
-## Comparison Image Quality
+### Connecting the custom ResNet-50 AutoEncoder to the ST-VAE architecture:
+The main and next challenge was connecting our custom built ResNet-50 autoencoder to the input and output of the VLT in the ST-VAE. It consisted of connecting the latent space manipulations performed by both the vLT and the Variational Module with the new latent space dimensions provided by the ResNet encoder. Unsuprinsignly, the output of ResNet-50 encoder is different than the one used by VGG-19. Therefore, we had to to change the loss function slightly to be able to work with the new dimensions of the ResNet encoder. We tried to limit the changes to the loss function to be able to compare the results of the paper to the new variantion we have built. In a similar fashion, we had to change the dimensions of the output of the loss function to be compatible with the input of the ResNet-50 decoder. This part of the project proved to be one of the most difficult ones and took us most of the time during the time of the project. 
 
-## Limitations
-A very large limitation we experienced was time. Due to the limited time we had to work on this project, we could not successfully train our ResNet Autoencoder on the COCO dataset, forcing us to use an arbitrary set of pretrained weights from the internet. **More on not being able to fully train**
+
+### Running and testing the new variation of the ST-VAE architecture:
+Once everything was connected with minimal changes to the main ST-VAE architecture, we directly started testing the newly built variation. Here are some of the results of our variation and their counterparts from ST-VAE. 
+ 
+<table>
+    <tr>
+        <th></th>
+        <th>Original image </th>
+        <th>Style image </th>
+        <th>ST-VAE</th>
+        <th>Our variation</th>
+    </tr>
+    <tr>
+        <td>
+            Example 1
+        </td>
+        <td>
+            <img src='https://user-images.githubusercontent.com/45178285/173199456-07e6e284-0b86-4b96-9be2-743cd3284270.jpeg'  width="200"   height="200">
+        </td>
+        <td>
+            <img src='https://user-images.githubusercontent.com/45178285/173199543-5806a644-53c8-44d6-a081-08e4aa1259fe.jpeg' width="200"   height="200">
+        </td>
+        <td>
+            <img src='https://user-images.githubusercontent.com/45178285/173199430-75c665f0-272b-4f0d-a305-ac8233f4e98b.jpeg' width="200"   height="200">
+        </td>
+        <td>
+            <img src='https://user-images.githubusercontent.com/45178285/173199441-2a8a70e3-55b1-461d-b94e-402be0669c5a.jpeg' width="200"   height="200">
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Example 2
+        </td>
+        <td>
+            <img src='https://user-images.githubusercontent.com/45178285/173200326-47c68cdf-6ddf-4086-8b4b-0971ecf821d7.jpeg'  width="200"   height="200">
+        </td>
+        <td>
+            <img src='https://user-images.githubusercontent.com/45178285/173200317-f93fafb7-b946-4278-9e86-9988fc0c9d16.jpeg' width="200"   height="200">
+        </td>
+        <td>
+            <img src='https://user-images.githubusercontent.com/45178285/173200339-bfeaaf7c-2ab9-433a-9b44-d663a2c34874.jpeg' width="200"   height="200">
+        </td>
+        <td>
+            <img src='https://user-images.githubusercontent.com/45178285/173200595-e7caf285-08c8-4395-97fc-d5418aedfba4.jpeg' width="200"   height="200">
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Example 3
+        </td>
+        <td>
+            <img src='https://user-images.githubusercontent.com/45178285/173200380-0866c7e3-61ab-4d84-9fc2-176cf446c736.jpeg'  width="200"   height="200">
+        </td>
+        <td>
+            <img src='https://user-images.githubusercontent.com/45178285/173200378-a91289c1-fb8a-494a-b620-a39dcca4418b.jpeg' width="200"   height="200">
+        </td>
+        <td>
+            <img src='https://user-images.githubusercontent.com/45178285/173200363-24a88e6a-48aa-416f-a23f-28e76a2973ed.jpeg' width="200"   height="200">
+        </td>
+        <td>
+            <img src='https://user-images.githubusercontent.com/45178285/173200597-f940316d-1924-45c6-bcb6-46c45e5105d9.jpeg' width="200"   height="200">
+        </td>
+    </tr>
+</table>
+
+### Comparing the results of our variation with the original ST-VAE and limitations:
+One thing is clear from the results above, our ResNet-50 variation produces bad results. However, upon close inspection of the images, you can see some patterns from the original image showing up in the results of the ResNet-50 variation. In fact, the woman in the first example can be seen in the results of our variation. Same goes for the pillars of the TU Delft library and for the silhouette of the D&D character. Below, we clearly show where you can see the patterns. 
+
+<table>
+    <tr>
+        <th>Example 1 </th>
+        <th>Example 2 </th>
+        <th>Example 3</th>
+    </tr>
+    <tr>
+        <td>
+            <img src='https://user-images.githubusercontent.com/45178285/173201009-a1c937ca-18ca-4a76-a2f5-77a9f7fbb03b.jpeg'  width="400"   height="300">
+        </td>
+        <td>
+            <img src='https://user-images.githubusercontent.com/45178285/173201060-73c56e23-c94c-4053-925a-ceaa548e5804.jpeg' width="400"   height="300">
+        </td>
+        <td>
+            <img src='https://user-images.githubusercontent.com/45178285/173201091-b71cc348-cce4-4d9f-b102-17d3681a9994.jpeg' width="400"   height="300">
+        </td>
+    </tr>
+    <tr>
+        <th>The woman is slightly visible in the image</th>
+        <th>The pillars of the library can be seen in the image in parallel </th>
+        <th>The silhouette of the character is slightly visible especially the curvature of the head</th>
+    </tr>
+</table>
+
+Eventhough some parts of the image can still be seen in the results, this is far from the results we were expecting. We try to explain these poor results in the following limitations: 
+
+#### No training was done:
+A very large limitation we experienced was time. Due to the limited time we had to work on this project, we could not successfully train our ResNet Autoencoder on the COCO dataset, forcing us to use an arbitrary set of pretrained weights from the internet. More precisely, we used the `resnet50-19c8e357.pth` pre-trained weights for our AutoEncoder. This can explain why a lot of important of the features are lost when transfering the style. With more time, we would have been able to train properly the model and maybe we could have got better results.
+
+#### Changes to the Linear transfer and Variation modules:
+In order to connect the custom ResNet-50 Autoencoder to the Linear transfer and Variation modules, we had to make several changes (We tried to minimize the changes). Mainly, we had to alter the loss function and change the dimensions of input and output of the modules. Since these changes were not backed by any mathematical proofs as they did in the original paper, these changes might be at the core of our problem. Maybe with more time to study the influence of the changes and trying better solutions other than just making the code work by changing the dimensions of the output can be a solution to this problem and can be used to show that a ResNet-50 autoencoder can indeed replace a VGG-19. 
+
+#### A ResNet-50 autoenceoder is maybe not the way to go?
+Our decision to try a ResNet-50 autoencoder instead of a VGG-19 is not on any realted works or studies. It was just curiosity from our side to see if we can make it work and if it does work at all. So a possible cause of the bad results might be that our initial choice was not correct and ResNet-50 cannot replace VGG-19 in this setting. We cannot conclude this for sure until the previous two limitations are overcome. However, we did get some small good results where parts of the images were still in there. So maybe it is a good idea that just needs more time and fine tuning. 
+
+## Third contribution - Comparing ST-VAE, our variation and three other methods:
+We had still one week in the project time when we got the results shown above. Therefore, we wanted to contribute a little bit more in our project. Therefore, we decided to do a third contribution where compare the techniques and methods used in ST-VAE and our variation to three other methods. In this section, we will first present briefly the two methods then we will compare their methods and results to the previous results. For both methods, we did not reproduce the projects but just run their google collab links and tried to understand the differences between the methods. 
+
+### Method 1: [Neural-Style-Transfer](https://github.com/titu1994/Neural-Style-Transfer)
+
+
+
+### Method 2: [neural-style-tf](https://github.com/cysmith/neural-style-tf)
+
+
+### Method 3: [Neural style transfer](https://colab.research.google.com/github/tensorflow/docs/blob/master/site/en/tutorials/generative/style_transfer.ipynb)
+
+### Comparison of the methods' results
+In the table below, we present the results of the two methods using the same examples shown in the previous section. 
+
+<table>
+    <tr>
+        <th></th>
+        <th>Original image </th>
+        <th>Style image </th>
+        <th>Method 1</th>
+        <th>Method 2</th>
+        <th>Method 3</th>
+    </tr>
+    <tr>
+        <td>
+            Example 1
+        </td>
+        <td>
+            <img src='https://user-images.githubusercontent.com/45178285/173199456-07e6e284-0b86-4b96-9be2-743cd3284270.jpeg'  width="200"   height="200">
+        </td>
+        <td>
+            <img src='https://user-images.githubusercontent.com/45178285/173199543-5806a644-53c8-44d6-a081-08e4aa1259fe.jpeg' width="200"   height="200">
+        </td>
+        <td>
+            <img src='https://user-images.githubusercontent.com/45178285/173203407-31d8359e-5939-4732-940c-54e7aac6a951.png' width="200"   height="200">
+        </td>
+        <td>
+            <img src='' width="200"   height="200">
+        </td>
+        <td>
+            <img src='https://user-images.githubusercontent.com/45178285/173203098-0574eb73-3501-4636-bc3c-c97877ed6a22.png' width="200"   height="200">
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Example 2
+        </td>
+        <td>
+            <img src='https://user-images.githubusercontent.com/45178285/173200326-47c68cdf-6ddf-4086-8b4b-0971ecf821d7.jpeg'  width="200"   height="200">
+        </td>
+        <td>
+            <img src='https://user-images.githubusercontent.com/45178285/173200317-f93fafb7-b946-4278-9e86-9988fc0c9d16.jpeg' width="200"   height="200">
+        </td>
+        <td>
+            <img src='https://user-images.githubusercontent.com/45178285/173202590-f28b641e-4649-43c0-acdb-c2b86a896cb1.jpeg' width="200"   height="200">
+        </td>
+        <td>
+            <img src='https://user-images.githubusercontent.com/45178285/173202595-5d203e14-449f-42d0-9e40-e414dbc1fe22.jpeg' width="200"   height="200">
+        </td>
+        <td>
+            <img src='https://user-images.githubusercontent.com/45178285/173203072-87d8163e-0f79-4f41-bc39-a4c910d80ab4.png' width="200"   height="200">
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Example 3
+        </td>
+        <td>
+            <img src='https://user-images.githubusercontent.com/45178285/173200380-0866c7e3-61ab-4d84-9fc2-176cf446c736.jpeg'  width="200"   height="200">
+        </td>
+        <td>
+            <img src='https://user-images.githubusercontent.com/45178285/173200378-a91289c1-fb8a-494a-b620-a39dcca4418b.jpeg' width="200"   height="200">
+        </td>
+        <td>
+            <img src='https://user-images.githubusercontent.com/45178285/173202601-1cecfcef-f88c-44dc-b0a0-b19f3b3cd15f.jpeg' width="200"   height="200">
+        </td>
+        <td>
+            <img src='' width="200"   height="200">
+        </td>
+        <td>
+            <img src='https://user-images.githubusercontent.com/45178285/173203083-6d5e680b-2f1d-4ddb-afad-983b3bb38f81.png' width="200"   height="200">
+        </td>
+    </tr>
+</table>
 
 
 ## Conclusion
