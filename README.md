@@ -196,7 +196,7 @@ In the table below, we present the results of the two methods using the same exa
             <img src='https://user-images.githubusercontent.com/45178285/173203407-31d8359e-5939-4732-940c-54e7aac6a951.png' width="200"   height="200">
         </td>
         <td>
-            <img src='' width="200"   height="200">
+            <img src='https://user-images.githubusercontent.com/45178285/173227940-83f067ab-e1a2-4a82-b1c0-ee1fce56286a.jpeg' width="200"   height="200">
         </td>
         <td>
             <img src='https://user-images.githubusercontent.com/45178285/173203098-0574eb73-3501-4636-bc3c-c97877ed6a22.png' width="200"   height="200">
@@ -236,7 +236,7 @@ In the table below, we present the results of the two methods using the same exa
             <img src='https://user-images.githubusercontent.com/45178285/173202601-1cecfcef-f88c-44dc-b0a0-b19f3b3cd15f.jpeg' width="200"   height="200">
         </td>
         <td>
-            <img src='' width="200"   height="200">
+            <img src='https://user-images.githubusercontent.com/45178285/173227820-c27a5fa8-7489-4029-aaf4-6128ce81930a.jpeg' width="200"   height="200">
         </td>
         <td>
             <img src='https://user-images.githubusercontent.com/45178285/173203083-6d5e680b-2f1d-4ddb-afad-983b3bb38f81.png' width="200"   height="200">
