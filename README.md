@@ -30,14 +30,12 @@ To train this large network to learn how to parameterize the Variational Autoenc
 
 #### Steps to reproduce the paper:
 
-The first part of our porject was to reproduce the ST-VAE paper. Fortunately, the main code base of the paper was publicly available on GitHub. However, the code was outdated and had some missing parts. We, first, made the code work and behave as it is supposed to which helped us to understand clearly the code base to be able to tweak it and change it for our second contribution as explained in the next subsection. This part of the project didn't take much time from the team but we got some estheticly nice results. 
+The first part of our pojoect was to reproduce the ST-VAE paper. Fortunately, the main code base of the paper was publicly available on GitHub. However, the code was outdated and had some missing parts. We, first, made the code work and behave as it is supposed to which helped us to understand clearly the code base to be able to tweak it and change it for our second contribution as explained in the next subsection. This part of the project didn't take much time from the team but we got some aesthetically nice results. 
 
 The main issues that we have faced are the outdated dependecies in their code base, the lack of relation between the paper and the code base. For example, in the paper, there is only one mention of VGG-19 (that we frankly missed when reading the paper). Fortunately, by re-reading the paper several time and mapping its steps to the code base's steps, we managed to make it work.
 
 #### Results:
-Below are some images created from both single style and multiple style transfer.
-
-**Images here**
+We provide some examples images of the ST-VAE work, our contribution, and other methods we chose to compare our work with, later in this blog.
 
 
 ## Second contribution - Expand on ST-VAE by using ResNet-50 instead of VGG-19:
@@ -46,14 +44,15 @@ In this section of the blog, we present our second contribution. It consisted of
 ### Motivation for this contribution:
 Since the first contribution didn't take us a lot of time (it was done in the first 2 weeks of the course), we wanted to try to expand on the work of ST-VAE. Figuring out if another architecture for the autoencoder will drastically change ST-VAE's ability to transfer style from one image to another. More specifically,  we wanted to see if residual connections of a ResNet-50 autoencoder affect the quality of the image, compared to the usage of a VGG network. We chose to replace the Image Autoencoder from a VGG-19 network to a ResNet-50 network (without the fully connected layers). 
 
-We chose ResNet-50 for two reasons, it is relatively a small architecture and there are several pre-trained ResNet-50 architectures available online that we can use for quick tests. We first wanted to train this variation of the architecture ourselves but unfortunately, we couldn't do that. More information about this will be discussed later in the blog. 
+We chose ResNet-50 for three reasons, it is relatively a small architecture and there are several pre-trained ResNet-50 architectures available online that we can use for quick tests. We first wanted to train this variation of the architecture ourselves but unfortunately, we couldn't do that. More information about this will be discussed later in the blog. 
 
 ### Building a custom ResNet-50 AutoEncoder:
-To fulfill this step of our process, we coded our own version of ResNet-50 AutoEncoder. Fortunately, the main building blocks for ResNet-50 are available on GitHub (especially for the encoder part of the Autoencoder). We, quickly, built the encoder then we dived in to build the reverse fo the encoder to create the decoder part. This has proved to be a little bit difficult but, fortunately, we were able to finish it succefully. 
+To fulfill this step of our process, we coded our own version of ResNet-50 AutoEncoder. Fortunately, the main building blocks for ResNet-50 are available on GitHub (especially for the encoder part of the Autoencoder). We, quickly, built the encoder then we dived in to build the reverse of the encoder to create the decoder part. This has proved to be a little bit difficult but, fortunately, we were able to finish it succefully.
 
 
 ### Connecting the custom ResNet-50 AutoEncoder to the ST-VAE architecture:
-The main and next challenge was connecting our custom built ResNet-50 autoencoder to the input and output of the VLT in the ST-VAE. It consisted of connecting the latent space manipulations performed by both the vLT and the Variational Module with the new latent space dimensions provided by the ResNet encoder. Unsuprinsignly, the output of ResNet-50 encoder is different than the one used by VGG-19. Therefore, we had to to change the loss function slightly to be able to work with the new dimensions of the ResNet encoder. We tried to limit the changes to the loss function to be able to compare the results of the paper to the new variantion we have built. In a similar fashion, we had to change the dimensions of the output of the loss function to be compatible with the input of the ResNet-50 decoder. This part of the project proved to be one of the most difficult ones and took us most of the time during the time of the project. 
+The main and next challenge was connecting our custom built ResNet-50 autoencoder to the input and output of the VLT in the ST-VAE. It consisted of connecting the latent space manipulations performed by both the VLT and the Variational Module with the new latent space dimensions provided by the ResNet encoder. Unsurprisingly, the output of ResNet-50 encoder is different than the one used by VGG-19. Therefore, we had to overhaul the entirety of their latent space code base, effectively altering the loss functions, as well as the latent space dimension manipulations. We tried to limit the changes to the loss function to be able to compare the results of the paper to the new variantion we have built. In a similar fashion, we had to change the dimensions of the output of the loss function to be compatible with the input of the ResNet-50 decoder. This part of the project proved to be one of the most difficult ones and took us most of the time during the time of the project. 
+Additionally, the VLT module made use of specific dimension squeeze() and unsqueeze() methods, which were not compatible with the ResNet-50 latent space. This change was also difficult to correct for, as our initial solutions, while valid mathematically, produced noise-only outputs.
 
 
 ### Running and testing the new variation of the ST-VAE architecture:
@@ -147,31 +146,42 @@ One thing is clear from the results above, our ResNet-50 variation produces bad 
     </tr>
 </table>
 
-Eventhough some parts of the image can still be seen in the results, this is far from the results we were expecting. We try to explain these poor results in the following limitations: 
+Even though some parts of the image can still be seen in the results, this is far from the results we were expecting. We try to explain these results in the following limitations: 
 
 #### No training was done:
 A very large limitation we experienced was time. Due to the limited time we had to work on this project, we could not successfully train our ResNet Autoencoder on the COCO dataset, forcing us to use an arbitrary set of pretrained weights from the internet. More precisely, we used the `resnet50-19c8e357.pth` pre-trained weights for our AutoEncoder. This can explain why a lot of important of the features are lost when transfering the style. With more time, we would have been able to train properly the model and maybe we could have got better results.
 
 #### Changes to the Linear transfer and Variation modules:
-In order to connect the custom ResNet-50 Autoencoder to the Linear transfer and Variation modules, we had to make several changes (We tried to minimize the changes). Mainly, we had to alter the loss function and change the dimensions of input and output of the modules. Since these changes were not backed by any mathematical proofs as they did in the original paper, these changes might be at the core of our problem. Maybe with more time to study the influence of the changes and trying better solutions other than just making the code work by changing the dimensions of the output can be a solution to this problem and can be used to show that a ResNet-50 autoencoder can indeed replace a VGG-19. 
+In order to connect the custom ResNet-50 Autoencoder to the Linear transfer and Variation modules, we had to make several changes. Mainly, we had to alter the loss function and change the dimensions of input and output of the modules. Since these changes were not backed by any mathematical proofs as they did in the original paper, these changes might be at the core of our problem. Maybe with more time to study the influence of the changes and trying better solutions other than just making the code work by changing the dimensions of the output can be a solution to this problem and can be used to show that a ResNet-50 autoencoder can indeed replace a VGG-19. 
 
 #### A ResNet-50 autoenceoder is maybe not the way to go?
-Our decision to try a ResNet-50 autoencoder instead of a VGG-19 is not on any realted works or studies. It was just curiosity from our side to see if we can make it work and if it does work at all. So a possible cause of the bad results might be that our initial choice was not correct and ResNet-50 cannot replace VGG-19 in this setting. We cannot conclude this for sure until the previous two limitations are overcome. However, we did get some small good results where parts of the images were still in there. So maybe it is a good idea that just needs more time and fine tuning. 
+Our decision to try a ResNet-50 autoencoder instead of a VGG-19 is not related to any works or studies. It was just curiosity from our side to see if we can make it work and if it does work at all. So a possible cause of the bad results might be that our initial choice was not correct and ResNet-50 cannot replace VGG-19 in this setting. We cannot conclude this for sure until the previous two limitations are overcome. However, we did get some small good results where parts of the images were still in there. So maybe it is a good idea that just needs more time and fine tuning. 
 
 ## Third contribution - Comparing ST-VAE, our variation and three other methods:
-We had still one week in the project time when we got the results shown above. Therefore, we wanted to contribute a little bit more in our project. Therefore, we decided to do a third contribution where compare the techniques and methods used in ST-VAE and our variation to three other methods. In this section, we will first present briefly the two methods then we will compare their methods and results to the previous results. For both methods, we did not reproduce the projects but just run their google collab links and tried to understand the differences between the methods. 
+We had still one week in the project time when we got the results shown above. Therefore, we wanted to contribute a little bit more in our project. Therefore, we decided to do a third contribution where we compare the techniques and methods used in ST-VAE and our variation to three other methods. In this section, we will first present briefly three methods then we will compare their methods and results to the previous results. For the three methods, while we did reproduce the code, we had access to existing github repositories, which provided clear instructions how to set things up. One interesting side-note, is that most neural style transfer methods in PyTorch use a very old version where .lua files were still used to store model weights. This made reproducing the projects much more difficult, due to the very confusing PyTorch version documentation. 
+
 
 ### Method 1: [Neural-Style-Transfer](https://github.com/titu1994/Neural-Style-Transfer)
+This repository builds upon the work of Gatys et al. "A Neural Algorithm of Artistic Style", a prior work which our original papers builds on and references. The main idea behind the algorithm of Gatys et al. is to effectively overfit a network to a content and style image, where the statistics of the recreated image are matched to both the content and style image. This is effectively done by using a VGG-19 convolutional network, and relying on its intermediate layers.
+As is beginning to be understood in deep learning, the initial few layer activations represent low-level features such as edges and textures, while the later layer activations present higher-level features, such as object components (boxes, eyes. etc...). By using these intermediate layers are reference, the algorithm of Gatys et al. effectively aims to match, for an input image, the corresponding style and content target intermediate representations.
+
 
 
 
 ### Method 2: [neural-style-tf](https://github.com/cysmith/neural-style-tf)
+The works presented in this paper is both a reproduction of Gatys et al. "A Neural Algorithm of Artistic Style", as well as an improvement on top of it, by incorporating an additional improvement for color preservation. While the works of Method 1 and 2 are very similar, they differ in the method with which they try to match the image statistics.
+
+For Method 1, the key observation made related to the high-frequency details which were present in the output image. When creating the output image, it was observed that a lot of noise was present, notably in the presence of arbitrary and unnecessary edges. This specific case was notably observed in stained glass images. As a solution to this issue, Method 1 used a Sobel filter-based regulation to reduce the number of edges and preserve a smoother image.
+
+What Method 2 aimed to achieve is the preservation and uniformity of colors. By specifically preserving colors by using specific intermediate layers of the full VGG network (Method 1 only used 1 intermediate layer which was hand-picked), the output is smoother, with the edge information being better preserved.
 
 
-### Method 3: [Neural style transfer](https://colab.research.google.com/github/tensorflow/docs/blob/master/site/en/tutorials/generative/style_transfer.ipynb)
+
+### Method 3: [Neural style transfer](https://github.com/titu1994/Neural-Style-Transfer)
+In truth, this method is a bit of a mystery. This Github repository also refers to the paper of Gatys et al., however builds upon it differently as well, by incorporating works relating to "Neural Doodles". Neural Doodles is an older work for style transfer and art creation by using a Neural Patch algorithm to draw doodles. This Neural Patches algorithm makes use of generative Markov rnadom field models (MRF), which are descriminatively trained CNN's for synthesizing 2D images. Unfortunately, due to time limitations, we did not have the time to further investigate the specifics behind this work. It is however a very intruiging work, as drawing using a computer is very different from fusing two images.
 
 ### Comparison of the methods' results
-In the table below, we present the results of the two methods using the same examples shown in the previous section. 
+In the table below, we present the results of the three methods using the same examples shown in the previous section. 
 
 <table>
     <tr>
@@ -244,6 +254,9 @@ In the table below, we present the results of the two methods using the same exa
     </tr>
 </table>
 
+Overall, observing the results of the three methods, we can easily see the difference between the methods. Method 1 and 3 both have images which consist of "fusions" of the style and content images in the pure mathematical sense. Both methods have rounded shapes and interpolated smooth colors between objects. Method 2 on the other hand, has an artistic style which is very close to what one would expect for stained glass art. The edges are sharp and minimalist, with the colors being roughly uniform within each geometric set. This applies especially to the first image generated, where the entire room is very smoothly turned into a stained glass art which looks realistic. 
+
+What is interesting to observe beyond the qualitative measurements, is how these images are evaluated. In most works based on mathematics, notably for classification and segmentation, the loss values and error output is a strong indicator of the performance of the method and its correctness. For the problem of style transfer, and artistic generation as a whole, the method for evaluating the best algorithm is not based on a quantitative measurement, but purely on the personal preference of the majority. For all works related to this project, the results were often obtained by asking a group of individuals to select which image they found best. And what is most interesting, is that even the networks with the lowest Mean Square Error can still easily be considered worse.
 
 ## Conclusion
 Overall, this project was in hindsight, a bit too ambitious for our budgetary and time limitations. While we finally succeeded in connecting the ResNet-50 to the VLT module and modifying the loss functions to allow the code to run, we did not have the time to extensively experiment and test the benefits of the residual connection-based architecture.
